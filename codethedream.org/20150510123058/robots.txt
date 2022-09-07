@@ -1,0 +1,105 @@
+<html>
+<head>
+  <title>Unusual Traffic Detected</title>
+  <link rel="shortcut icon" href="http://www.not_valid.com/not_valid" />
+  <script type="text/javascript" src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <style> 
+    body { font-family: 'Helvetica Neue', 'Helvetica', sans-serif; font-size: 12px; padding: 50px; background: #f2f2f2; color: #222; } 
+    #recaptcha_response_field { transition: all .2s ease-out; padding: 8px !important; border: 1px solid #ccc !important; outline: 0 !important; font-size: 13px !important; }
+    #recaptcha_response_field:focus { border: 1px solid #333 !important; }
+    #recaptcha_div { padding-top: 30px; }
+    #recaptcha_privacy a { font-size: 11px; color: #777 !important; }
+    .desc { width: 600px; line-height: 17px; }
+    .block-message { width: 600px; margin-top: 20px; }
+    .block-message.error { background: #000; color: #fff; padding: 9px 10px; border-radius: 3px; }
+    #recaptcha_table { background: #fff; }
+    a { transition: all .2s ease-out; text-decoration: none; color: #444; font-weight: bold; }
+    a:hover { color: #111; }
+    button {
+      transition: all .2s ease-out;
+      font-family: 'Helvetica Neue', 'Helvetica', sans-serif;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      background: #f8f8f8;
+      border-radius: 30px;
+      padding: 7px 15px;
+      outline: 0;
+      cursor: pointer;
+      color: #666;
+      margin-top: 20px;
+    }
+    button:active {
+      background: #fff;
+      border-color: #aaa;
+      color: #222;
+    }
+    button:hover {
+      background: #eee;
+      border-color: #444;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Unusual Traffic Detected</h1>
+  <div class="desc">Our systems have detected unusual traffic from your computer network. Please answer the below challenge to continue. If you see this message regularly, please contact <a href="mailto:support@squarespace.com">support@squarespace.com</a>.</div>
+
+  <div class="block-message"></div>
+
+  <div id="recaptcha_div">Loading CAPTCHA...</div>
+
+  <button onclick="submitCAPTCHA()">Submit</button>
+
+  <script type="text/javascript">
+   
+    Recaptcha.create("6LeZBPUSAAAAAPd91n0A_qR8i6-RNoPUob9GV1e5", "recaptcha_div", {
+      theme: "clean",
+      callback: captchaReady
+    });
+
+    function submitCAPTCHA() {
+
+      if ($.trim($("#recaptcha_response_field").val()) == "") {
+        $(".block-message").addClass("error").html("You must type the letters in the box below. Please try again.").show();
+        return;
+      }
+
+      $.post("/service/recaptcha", {
+        "recaptcha_challenge_field" : Recaptcha.get_challenge(),
+        "recaptcha_response_field"  : Recaptcha.get_response()
+      }).done(function(data) {
+
+        if (data.success) {
+          window.location.reload();
+        } else {
+          $(".block-message").addClass("error").html("That response was not valid. Please try again.").show();
+          Recaptcha.reload();
+          $("#recaptcha_response_field").focus();
+        }
+
+      });
+     
+    }
+
+    function captchaReady() {
+
+      $("#recaptcha_response_field").keypress(function(e) {
+        if (e.which == 13) {
+          submitCAPTCHA();
+        }
+      }).focus();
+
+    }
+
+    $(document).ready(function() {
+      
+      var bm = $(".block-message");
+      if ($.trim(bm.html()) == "") { bm.hide(); }
+
+    });
+
+  </script>
+
+</body>
+</html>
